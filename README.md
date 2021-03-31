@@ -16,7 +16,7 @@ Classe de ajuda para consulta ao SI-PNI do DataSUS
 
 ### Executar
 
-- executar `composer require iurigustavo/php-sipni`git 
+- executar `composer require iurigustavo/php-sipni`
 
 ### Converter chave formato *.pfx para *.pem
 executar `openssl pkcs12 -in filename.pfx -out cert.pem`
