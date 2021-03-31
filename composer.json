@@ -1,0 +1,23 @@
+{
+  "name": "iurigustavo/datasus-tls",
+  "description": "Consulta api DataSus em PHP",
+  "authors": [
+    {
+      "name": "Iuri Gustavo",
+      "email": "gustavo.iuri@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.4",
+    "ext-curl": "*",
+    "ext-json": "*"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "^9.5"
+  },
+  "autoload": {
+    "psr-4": {
+      "Sipni\\": "src"
+    }
+  }
+}
