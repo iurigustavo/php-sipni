@@ -3,8 +3,6 @@
 
     namespace Sipni\Traits;
 
-
-    use Sipni\Auth\Authenticate;
     use stdClass;
 
     class ElasticSearch
@@ -13,10 +11,13 @@
 
         protected string $url;
 
-        private array $filters = [];
-        private array $sort    = [];
-        private int   $size    = 10;
-        private array $params  = [];
+        private array $filters      = [];
+        private array $ranges       = [];
+        private array $sort         = [];
+        private int   $size         = 10;
+        private array $params       = [];
+        private array $search_after = [];
+
 
         /**
          * Filtro de coluna
@@ -29,6 +30,19 @@
         public function filter($term, $value): self
         {
             $this->filters = [$term => $value];
+            return $this;
+        }
+
+        /**
+         * Filtro de coluna do tipo Range
+         *
+         * @param $params
+         *
+         * @return $this
+         */
+        public function range($params): self
+        {
+            $this->ranges = $params;
             return $this;
         }
 
@@ -60,6 +74,19 @@
         }
 
         /**
+         * Search_After, faz a consulta a após registro enviado usando como base o campo "sort", não pode utilizar junto do scroll
+         *
+         * @param  array  $params
+         *
+         * @return $this
+         */
+        public function search_after(array $params)
+        {
+            $this->search_after = $params;
+            return $this;
+        }
+
+        /**
          * Retorna registros sem paginação utilizando o limite máximo
          *
          * @return stdClass
@@ -80,8 +107,16 @@
                 $params['query']['term'] = $this->filters;
             }
 
+            if (sizeof($this->ranges) > 0) {
+                $params['query']['range'] = $this->ranges;
+            }
+
             if (sizeof($this->sort) > 0) {
                 $params['sort'] = $this->sort;
+            }
+
+            if (sizeof($this->search_after) > 0) {
+                $params['search_after'] = $this->search_after;
             }
 
             $params['size'] = $this->size;
@@ -91,10 +126,12 @@
 
         private function clearParams()
         {
-            $this->filters = [];
-            $this->sort    = [];
-            $this->size    = 10;
-            $this->params  = [];
+            $this->filters      = [];
+            $this->ranges       = [];
+            $this->sort         = [];
+            $this->size         = 10;
+            $this->params       = [];
+            $this->search_after = [];
             $this->url;
         }
 
@@ -110,6 +147,7 @@
         public function scroll($scrollTime = '5m', $size = 10000): ?stdClass
         {
             $this->buildParams();
+            unset($this->params['search_after']);
             $this->params['size']   = $size;
             $this->params['scroll'] = $scrollTime;
             $hitsList               = [];
